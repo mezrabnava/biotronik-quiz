@@ -44,12 +44,16 @@ animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 </div>
 </div>
 
-<div class="max-w-6xl mx-auto">
+<div class="max-w-6xl mx-auto flex gap-8">
+<div style="flex: 1; max-width: 70%;">
 <div class="bg-white rounded-3xl p-12 mb-8 shadow-2xl">
 <h2 id="questionText" class="text-5xl font-bold text-gray-800 leading-tight"></h2>
 </div>
 <div id="answersContainer" class="grid grid-cols-1 gap-6"></div>
-<button id="nextBtn" onclick="nextQuestion()" class="hidden mt-8 w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white text-4xl font-bold py-8 rounded-2xl hover:scale-105 transition-transform duration-300 shadow-2xl"><span id="nextBtnText">NEXT QUESTION</span></button>
+</div>
+<div style="width: 300px; display: flex; align-items: center;">
+<button id="nextBtn" onclick="nextQuestion()" class="hidden w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white text-4xl font-bold py-12 px-8 rounded-2xl hover:scale-105 transition-transform duration-300 shadow-2xl"><span id="nextBtnText">NEXT</span></button>
+</div>
 </div>
 </div>
 
