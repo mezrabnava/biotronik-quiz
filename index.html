@@ -1,392 +1,118 @@
-import React, { useState, useEffect } from 'react';
-import { Brain, Trophy, ChevronRight, RotateCcw, Mail } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Medical Technology Trivia Kiosk</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body {
+margin: 0;
+padding: 0;
+overflow: hidden;
+font-family: system-ui, -apple-system, sans-serif;
+}
+.animate-pulse {
+animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes pulse {
+0%, 100% { opacity: 1; }
+50% { opacity: .7; }
+}
+.hidden { display: none; }
+</style>
+</head>
+<body>
 
-const MedTechQuiz = () => {
-  const [screen, setScreen] = useState('attract');
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [score, setScore] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [allScores, setAllScores] = useState([]);
-  const [email, setEmail] = useState('');
-  const [inactivityTimer, setInactivityTimer] = useState(null);
+<div id="attractScreen" class="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 flex items-center justify-center p-8">
+<div class="text-center animate-pulse">
+<h1 class="text-8xl font-bold text-white mb-6 drop-shadow-lg">Medical Technology</h1>
+<h2 class="text-6xl font-semibold text-white mb-12 drop-shadow-lg">Trivia Challenge</h2>
+<button onclick="startQuiz()" class="bg-white text-purple-600 text-5xl font-bold py-8 px-16 rounded-3xl hover:scale-110 transition-transform duration-300 shadow-2xl">TAP TO START</button>
+<p class="text-3xl text-white mt-12 opacity-90">Test your knowledge - 23 Questions</p>
+</div>
+</div>
 
-  const questions = [
-    {
-      question: "CLS has been studied in how many patients worldwide?",
-      answers: ["<1000", "2000", "4000", ">6000"],
-      correct: 3
-    },
-    {
-      question: "Between 2021 and 2025, which company had the highest number of CRM device recalls?",
-      answers: ["MDT", "BIO", "ABT", "BSX"],
-      correct: 0
-    },
-    {
-      question: "What percentage of BIOTRONIK employees at Berlin HQ are dedicated to quality assurance?",
-      answers: ["5%", "8%", "12%", ">15%"],
-      correct: 3
-    },
-    {
-      question: "Which BIOTRONIK ICD system provides dual-chamber AF detection without an atrial lead?",
-      answers: ["CLS", "DX ICD System", "BIOMONITOR", "Selectra 3D"],
-      correct: 1
-    },
-    {
-      question: "What was the cost to Medicare for the 7 major cardiac device recalls between 2005-2014?",
-      answers: ["$500 million", "$750 million", "$1 billion", "$1.5 billion"],
-      correct: 2
-    },
-    {
-      question: "Which exclusive BIOTRONIK algorithm puts the autonomic nervous system back in control of heart rate?",
-      answers: ["Minute Ventilation", "QT Sensor", "Closed Loop Stimulation (CLS)", "Adaptive Pacing Mode"],
-      correct: 2
-    },
-    {
-      question: "Which CRM company currently has no open recalls?",
-      answers: ["MDT", "BSX", "BIO", "ABT"],
-      correct: 2
-    },
-    {
-      question: "Where are BIOTRONIK's device batteries manufactured?",
-      answers: ["USA", "Germany", "Malaysia", "Puerto Rico"],
-      correct: 1
-    },
-    {
-      question: "In a large, long-term study (Mitacchione et al 54 month follow-up), what percentage of DX ICD patients did not require an atrial lead upgrade?",
-      answers: ["50%", "75.4%", "85.9%", "98.7%"],
-      correct: 3
-    },
-    {
-      question: "Implanting an atrial lead in ICD patients without pacing needs increases the odds of complications by what percentage?",
-      answers: ["10%", "25%", "40%", "60%"],
-      correct: 2
-    },
-    {
-      question: "What does CLS directly measure to adapt heart rate physiologically?",
-      answers: ["Body temperature", "Myocardial contractility", "Patient steps", "Oxygen saturation"],
-      correct: 1
-    },
-    {
-      question: "Beyond movement (physical exercise) what can CLS uniquely respond to?",
-      answers: ["Environmental temperature", "Acute mental stress", "High altitude", "Sleep apnea"],
-      correct: 1
-    },
-    {
-      question: "CLS is included in which BIOTRONIK therapy categories?",
-      answers: ["Pacemakers only", "ICDs only", "Pacemakers and CRT-P", "All pacemakers, ICDs, and CRT devices"],
-      correct: 3
-    },
-    {
-      question: "In clinical studies, CLS has been proven to:",
-      answers: ["Reduce risk of subclinical AF", "Restore physiologic heart rates", "Help to improve quality of life and symptoms of OH", "All of the above"],
-      correct: 3
-    },
-    {
-      question: "BIOTRONIK's Home Monitoring technology allows for what type of patient monitoring?",
-      answers: ["Weekly check-ins", "Monthly reports", "Automatic daily transmission", "On-demand only"],
-      correct: 2
-    },
-    {
-      question: "What year was BIOTRONIK founded?",
-      answers: ["1953", "1963", "1973", "1983"],
-      correct: 1
-    },
-    {
-      question: "Which BIOTRONIK innovation was the world's first MRI-conditional fully automated device?",
-      answers: ["SuperMRI in the Super Mario family", "MRI Guard 24/7 in the Amvia pacemaker family", "AutoMRI in all device families", "MRIsure in Les Misérables family"],
-      correct: 1
-    },
-    {
-      question: "What is a key advantage of BIOTRONIK's DX ICD technology?",
-      answers: ["Smaller device size", "Eliminates need for atrial lead in many patients", "Wireless charging capability", "Smartphone connectivity"],
-      correct: 1
-    },
-    {
-      question: "What makes BIOTRONIK's CRT-DX system unique?",
-      answers: ["Requires 3 atrial leads", "Provides CRT dual-chamber pacing and atrial sensing with only 2 leads", "Has no atrial sensing capability", "Is only available in Europe"],
-      correct: 1
-    },
-    {
-      question: "What key benefit does CRT-DX provide compared to conventional CRT systems?",
-      answers: ["Fewer major complications", "Reduced procedure time", "Equivalent CRT response to traditional 3-lead CRT-D", "All of the above"],
-      correct: 3
-    },
-    {
-      question: "What is the average post-stroke care cost per patient, in the United States (excluding rehab)?",
-      answers: ["Less than $50,000", "$75,000", "$100,000", "$125,000", "$140,000", "more than $150,000"],
-      correct: 4
-    },
-    {
-      question: "Margolis et al 2023 reported that the addition of an atrial lead in ICDs was an independent predictor for any complication, namely pneumothorax/hemothorax and atrial lead dislodgement. What was the net increase in the complications rate for the dual-chamber ICD cohort, compared to the single-chamber cohort?",
-      answers: ["1%", "1.5%", "1.8%", "2.1%"],
-      correct: 3
-    },
-    {
-      question: "What fraction of CRT-D patients do not require atrial pacing?",
-      answers: ["100%", "50%", "20%", "0%"],
-      correct: 2
-    }
-  ];
+<div id="quizScreen" class="hidden min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-12">
+<div class="max-w-6xl mx-auto mb-8">
+<div class="flex justify-between items-center mb-4">
+<div class="text-white text-3xl font-semibold">Question <span id="currentQ">1</span> of <span id="totalQ">23</span></div>
+<div class="text-white text-3xl font-semibold">Score: <span id="score">0</span></div>
+</div>
+<div class="w-full bg-gray-700 rounded-full h-4">
+<div id="progressBar" class="bg-gradient-to-r from-blue-500 to-purple-500 h-4 rounded-full transition-all duration-500" style="width: 0%"></div>
+</div>
+</div>
 
-  // Reset to attract screen after 30 seconds of inactivity
-  useEffect(() => {
-    const resetTimer = () => {
-      if (inactivityTimer) clearTimeout(inactivityTimer);
-      if (screen !== 'attract') {
-        const timer = setTimeout(() => {
-          setScreen('attract');
-          setCurrentQuestion(0);
-          setScore(0);
-          setSelectedAnswer(null);
-          setShowFeedback(false);
-          setEmail('');
-        }, 30000);
-        setInactivityTimer(timer);
-      }
-    };
+<div class="max-w-6xl mx-auto">
+<div class="bg-white rounded-3xl p-12 mb-8 shadow-2xl">
+<h2 id="questionText" class="text-5xl font-bold text-gray-800 leading-tight"></h2>
+</div>
+<div id="answersContainer" class="grid grid-cols-1 gap-6"></div>
+<button id="nextBtn" onclick="nextQuestion()" class="hidden mt-8 w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white text-4xl font-bold py-8 rounded-2xl hover:scale-105 transition-transform duration-300 shadow-2xl"><span id="nextBtnText">NEXT QUESTION</span></button>
+</div>
+</div>
 
-    resetTimer();
-    return () => {
-      if (inactivityTimer) clearTimeout(inactivityTimer);
-    };
-  }, [screen, currentQuestion, selectedAnswer]);
+<div id="resultsScreen" class="hidden min-h-screen bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 p-12 flex items-center justify-center">
+<div class="max-w-5xl w-full">
+<div class="bg-white rounded-3xl p-16 shadow-2xl">
+<div class="text-9xl text-center mb-8">TROPHY</div>
+<h1 class="text-7xl font-bold text-center mb-4 text-gray-800">Quiz Complete!</h1>
+<div class="text-center mb-12">
+<div class="text-9xl font-bold text-purple-600 mb-4"><span id="finalScore">0</span>/<span id="finalTotal">23</span></div>
+<div class="text-5xl text-gray-600"><span id="percentage">0</span>% Correct</div>
+</div>
+<div class="mb-8 text-center">
+<label class="text-3xl text-gray-700 mb-4 block">Want your results? (Optional)</label>
+<div class="flex gap-4 max-w-2xl mx-auto">
+<input type="email" id="emailInput" placeholder="Enter your email" class="flex-1 px-6 py-4 text-2xl border-4 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none">
+</div>
+</div>
+<div id="leaderboardContainer" class="mb-8 hidden">
+<h3 class="text-4xl font-bold text-gray-800 mb-6 text-center">Today's Scores</h3>
+<div id="leaderboard" class="bg-gray-100 rounded-2xl p-6 max-h-64 overflow-y-auto"></div>
+</div>
+<button onclick="resetQuiz()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white text-4xl font-bold py-8 rounded-2xl hover:scale-105 transition-transform duration-300 shadow-xl">PLAY AGAIN</button>
+</div>
+</div>
+</div>
 
-  const startQuiz = () => {
-    setScreen('quiz');
-    setCurrentQuestion(0);
-    setScore(0);
-    setSelectedAnswer(null);
-    setShowFeedback(false);
-  };
-
-  const handleAnswer = (index) => {
-    if (showFeedback) return;
-    
-    setSelectedAnswer(index);
-    setShowFeedback(true);
-    
-    if (index === questions[currentQuestion].correct) {
-      setScore(score + 1);
-    }
-  };
-
-  const nextQuestion = () => {
-    if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
-      setSelectedAnswer(null);
-      setShowFeedback(false);
-    } else {
-      const newScore = {
-        score: score + (selectedAnswer === questions[currentQuestion].correct ? 1 : 0),
-        total: questions.length,
-        timestamp: new Date().toLocaleString(),
-        email: email || 'Anonymous'
-      };
-      setAllScores([...allScores, newScore]);
-      setScreen('results');
-    }
-  };
-
-  const AttractScreen = () => (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 flex items-center justify-center p-8">
-      <div className="text-center animate-pulse">
-        <Brain className="w-48 h-48 mx-auto mb-8 text-white drop-shadow-2xl" strokeWidth={1.5} />
-        <h1 className="text-8xl font-bold text-white mb-6 drop-shadow-lg">
-          Medical Technology
-        </h1>
-        <h2 className="text-6xl font-semibold text-white mb-12 drop-shadow-lg">
-          Trivia Challenge
-        </h2>
-        <button
-          onClick={startQuiz}
-          className="bg-white text-purple-600 text-5xl font-bold py-8 px-16 rounded-3xl hover:scale-110 transition-transform duration-300 shadow-2xl"
-        >
-          TAP TO START
-        </button>
-        <p className="text-3xl text-white mt-12 opacity-90">
-          Test your knowledge • 23 Questions
-        </p>
-      </div>
-    </div>
-  );
-
-  const QuizScreen = () => {
-    const q = questions[currentQuestion];
-    const progress = ((currentQuestion + 1) / questions.length) * 100;
-
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-12">
-        {/* Header */}
-        <div className="max-w-6xl mx-auto mb-8">
-          <div className="flex justify-between items-center mb-4">
-            <div className="text-white text-3xl font-semibold">
-              Question {currentQuestion + 1} of {questions.length}
-            </div>
-            <div className="text-white text-3xl font-semibold">
-              Score: {score}
-            </div>
-          </div>
-          <div className="w-full bg-gray-700 rounded-full h-4">
-            <div
-              className="bg-gradient-to-r from-blue-500 to-purple-500 h-4 rounded-full transition-all duration-500"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-        </div>
-
-        {/* Question */}
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-white rounded-3xl p-12 mb-8 shadow-2xl">
-            <h2 className="text-5xl font-bold text-gray-800 leading-tight">
-              {q.question}
-            </h2>
-          </div>
-
-          {/* Answers */}
-          <div className="grid grid-cols-1 gap-6">
-            {q.answers.map((answer, index) => {
-              const isSelected = selectedAnswer === index;
-              const isCorrect = index === q.correct;
-              const showCorrect = showFeedback && isCorrect;
-              const showIncorrect = showFeedback && isSelected && !isCorrect;
-
-              return (
-                <button
-                  key={index}
-                  onClick={() => handleAnswer(index)}
-                  disabled={showFeedback}
-                  className={`p-8 rounded-2xl text-3xl font-semibold text-left transition-all duration-300 ${
-                    showCorrect
-                      ? 'bg-green-500 text-white scale-105'
-                      : showIncorrect
-                      ? 'bg-red-500 text-white scale-95'
-                      : isSelected
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white text-gray-800 hover:bg-blue-100 hover:scale-105'
-                  } shadow-xl`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span>{answer}</span>
-                    {showCorrect && <span className="text-4xl">✓</span>}
-                    {showIncorrect && <span className="text-4xl">✗</span>}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Next Button */}
-          {showFeedback && (
-            <button
-              onClick={nextQuestion}
-              className="mt-8 w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white text-4xl font-bold py-8 rounded-2xl hover:scale-105 transition-transform duration-300 shadow-2xl flex items-center justify-center gap-4"
-            >
-              {currentQuestion < questions.length - 1 ? 'NEXT QUESTION' : 'SEE RESULTS'}
-              <ChevronRight className="w-12 h-12" />
-            </button>
-          )}
-        </div>
-      </div>
-    );
-  };
-
-  const ResultsScreen = () => {
-    const finalScore = score;
-    const percentage = Math.round((finalScore / questions.length) * 100);
-    const rank = allScores.length;
-
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 p-12 flex items-center justify-center">
-        <div className="max-w-5xl w-full">
-          <div className="bg-white rounded-3xl p-16 shadow-2xl">
-            <Trophy className="w-40 h-40 mx-auto mb-8 text-yellow-500" />
-            
-            <h1 className="text-7xl font-bold text-center mb-4 text-gray-800">
-              Quiz Complete!
-            </h1>
-            
-            <div className="text-center mb-12">
-              <div className="text-9xl font-bold text-purple-600 mb-4">
-                {finalScore}/{questions.length}
-              </div>
-              <div className="text-5xl text-gray-600">
-                {percentage}% Correct
-              </div>
-            </div>
-
-            {/* Optional Email Collection */}
-            <div className="mb-8 text-center">
-              <label className="text-3xl text-gray-700 mb-4 block">
-                Want your results? (Optional)
-              </label>
-              <div className="flex gap-4 max-w-2xl mx-auto">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  className="flex-1 px-6 py-4 text-2xl border-4 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none"
-                />
-              </div>
-            </div>
-
-            {/* All Scores Leaderboard */}
-            {allScores.length > 0 && (
-              <div className="mb-8">
-                <h3 className="text-4xl font-bold text-gray-800 mb-6 text-center">
-                  Today's Scores
-                </h3>
-                <div className="bg-gray-100 rounded-2xl p-6 max-h-64 overflow-y-auto">
-                  {allScores.slice(-10).reverse().map((s, i) => (
-                    <div
-                      key={i}
-                      className={`flex justify-between items-center p-4 mb-2 rounded-xl ${
-                        i === 0 ? 'bg-yellow-200' : 'bg-white'
-                      }`}
-                    >
-                      <span className="text-2xl font-semibold">
-                        #{allScores.length - i}
-                      </span>
-                      <span className="text-2xl">
-                        {s.email === 'Anonymous' ? 'Anonymous' : s.email}
-                      </span>
-                      <span className="text-2xl font-bold text-purple-600">
-                        {s.score}/{s.total}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <button
-              onClick={() => {
-                setScreen('attract');
-                setCurrentQuestion(0);
-                setScore(0);
-                setSelectedAnswer(null);
-                setShowFeedback(false);
-                setEmail('');
-              }}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white text-4xl font-bold py-8 rounded-2xl hover:scale-105 transition-transform duration-300 shadow-xl flex items-center justify-center gap-4"
-            >
-              <RotateCcw className="w-12 h-12" />
-              PLAY AGAIN
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  return (
-    <div className="w-screen h-screen overflow-hidden">
-      {screen === 'attract' && <AttractScreen />}
-      {screen === 'quiz' && <QuizScreen />}
-      {screen === 'results' && <ResultsScreen />}
-    </div>
-  );
-};
-
-export default MedTechQuiz;
+<script>
+var questions = [
+{question:"CLS has been studied in how many patients worldwide?",answers:["Less than 1000","2000","4000","More than 6000"],correct:3},
+{question:"Between 2021 and 2025, which company had the highest number of CRM device recalls?",answers:["MDT","BIO","ABT","BSX"],correct:0},
+{question:"What percentage of BIOTRONIK employees at Berlin HQ are dedicated to quality assurance?",answers:["5%","8%","12%","More than 15%"],correct:3},
+{question:"Which BIOTRONIK ICD system provides dual-chamber AF detection without an atrial lead?",answers:["CLS","DX ICD System","BIOMONITOR","Selectra 3D"],correct:1},
+{question:"What was the cost to Medicare for the 7 major cardiac device recalls between 2005-2014?",answers:["$500 million","$750 million","$1 billion","$1.5 billion"],correct:2},
+{question:"Which exclusive BIOTRONIK algorithm puts the autonomic nervous system back in control of heart rate?",answers:["Minute Ventilation","QT Sensor","Closed Loop Stimulation (CLS)","Adaptive Pacing Mode"],correct:2},
+{question:"Which CRM company currently has no open recalls?",answers:["MDT","BSX","BIO","ABT"],correct:2},
+{question:"Where are BIOTRONIK's device batteries manufactured?",answers:["USA","Germany","Malaysia","Puerto Rico"],correct:1},
+{question:"In a large, long-term study (Mitacchione et al 54 month follow-up), what percentage of DX ICD patients did not require an atrial lead upgrade?",answers:["50%","75.4%","85.9%","98.7%"],correct:3},
+{question:"Implanting an atrial lead in ICD patients without pacing needs increases the odds of complications by what percentage?",answers:["10%","25%","40%","60%"],correct:2},
+{question:"What does CLS directly measure to adapt heart rate physiologically?",answers:["Body temperature","Myocardial contractility","Patient steps","Oxygen saturation"],correct:1},
+{question:"Beyond movement (physical exercise) what can CLS uniquely respond to?",answers:["Environmental temperature","Acute mental stress","High altitude","Sleep apnea"],correct:1},
+{question:"CLS is included in which BIOTRONIK therapy categories?",answers:["Pacemakers only","ICDs only","Pacemakers and CRT-P","All pacemakers, ICDs, and CRT devices"],correct:3},
+{question:"In clinical studies, CLS has been proven to:",answers:["Reduce risk of subclinical AF","Restore physiologic heart rates","Help to improve quality of life and symptoms of OH","All of the above"],correct:3},
+{question:"BIOTRONIK's Home Monitoring technology allows for what type of patient monitoring?",answers:["Weekly check-ins","Monthly reports","Automatic daily transmission","On-demand only"],correct:2},
+{question:"What year was BIOTRONIK founded?",answers:["1953","1963","1973","1983"],correct:1},
+{question:"Which BIOTRONIK innovation was the world's first MRI-conditional fully automated device?",answers:["SuperMRI in the Super Mario family","MRI Guard 24/7 in the Amvia pacemaker family","AutoMRI in all device families","MRIsure in Les Misérables family"],correct:1},
+{question:"What is a key advantage of BIOTRONIK's DX ICD technology?",answers:["Smaller device size","Eliminates need for atrial lead in many patients","Wireless charging capability","Smartphone connectivity"],correct:1},
+{question:"What makes BIOTRONIK's CRT-DX system unique?",answers:["Requires 3 atrial leads","Provides CRT dual-chamber pacing and atrial sensing with only 2 leads","Has no atrial sensing capability","Is only available in Europe"],correct:1},
+{question:"What key benefit does CRT-DX provide compared to conventional CRT systems?",answers:["Fewer major complications","Reduced procedure time","Equivalent CRT response to traditional 3-lead CRT-D","All of the above"],correct:3},
+{question:"What is the average post-stroke care cost per patient, in the United States (excluding rehab)?",answers:["Less than $50,000","$75,000","$100,000","$125,000","$140,000","more than $150,000"],correct:4},
+{question:"Margolis et al 2023 reported that the addition of an atrial lead in ICDs was an independent predictor for any complication, namely pneumothorax/hemothorax and atrial lead dislodgement. What was the net increase in the complications rate for the dual-chamber ICD cohort, compared to the single-chamber cohort?",answers:["1%","1.5%","1.8%","2.1%"],correct:3},
+{question:"What fraction of CRT-D patients do not require atrial pacing?",answers:["100%","50%","20%","0%"],correct:2}
+];
+var currentQuestion=0,score=0,selectedAnswer=null,showFeedback=false,allScores=[],inactivityTimer=null;
+function startQuiz(){document.getElementById("attractScreen").classList.add("hidden");document.getElementById("quizScreen").classList.remove("hidden");currentQuestion=0;score=0;selectedAnswer=null;showFeedback=false;displayQuestion();resetInactivityTimer()}
+function displayQuestion(){var q=questions[currentQuestion];document.getElementById("questionText").textContent=q.question;document.getElementById("currentQ").textContent=currentQuestion+1;document.getElementById("totalQ").textContent=questions.length;document.getElementById("score").textContent=score;var progress=((currentQuestion+1)/questions.length)*100;document.getElementById("progressBar").style.width=progress+"%";var container=document.getElementById("answersContainer");container.innerHTML="";for(var i=0;i<q.answers.length;i++){var btn=document.createElement("button");btn.className="p-8 rounded-2xl text-3xl font-semibold text-left transition-all duration-300 bg-white text-gray-800 hover:bg-blue-100 hover:scale-105 shadow-xl";btn.innerHTML='<div class="flex items-center justify-between"><span>'+q.answers[i]+"</span></div>";btn.setAttribute("data-index",i);btn.onclick=function(){handleAnswer(parseInt(this.getAttribute("data-index")))};container.appendChild(btn)}document.getElementById("nextBtn").classList.add("hidden");selectedAnswer=null;showFeedback=false}
+function handleAnswer(index){if(showFeedback)return;selectedAnswer=index;showFeedback=true;var q=questions[currentQuestion];var buttons=document.getElementById("answersContainer").children;for(var i=0;i<buttons.length;i++){var btn=buttons[i];if(i===q.correct){btn.className="p-8 rounded-2xl text-3xl font-semibold text-left transition-all duration-300 bg-green-500 text-white scale-105 shadow-xl";btn.innerHTML='<div class="flex items-center justify-between"><span>'+q.answers[i]+'</span><span class="text-4xl">CHECK</span></div>'}else if(i===selectedAnswer){btn.className="p-8 rounded-2xl text-3xl font-semibold text-left transition-all duration-300 bg-red-500 text-white scale-95 shadow-xl";btn.innerHTML='<div class="flex items-center justify-between"><span>'+q.answers[i]+'</span><span class="text-4xl">X</span></div>'}btn.onclick=null}if(index===q.correct){score++;document.getElementById("score").textContent=score}document.getElementById("nextBtn").classList.remove("hidden");if(currentQuestion<questions.length-1){document.getElementById("nextBtnText").textContent="NEXT QUESTION"}else{document.getElementById("nextBtnText").textContent="SEE RESULTS"}resetInactivityTimer()}
+function nextQuestion(){if(currentQuestion<questions.length-1){currentQuestion++;displayQuestion()}else{showResults()}resetInactivityTimer()}
+function showResults(){var email=document.getElementById("emailInput").value||"Anonymous";allScores.push({score:score,total:questions.length,email:email,timestamp:new Date().toLocaleString()});document.getElementById("quizScreen").classList.add("hidden");document.getElementById("resultsScreen").classList.remove("hidden");document.getElementById("finalScore").textContent=score;document.getElementById("finalTotal").textContent=questions.length;var percentage=Math.round((score/questions.length)*100);document.getElementById("percentage").textContent=percentage;if(allScores.length>0){document.getElementById("leaderboardContainer").classList.remove("hidden");var leaderboard=document.getElementById("leaderboard");leaderboard.innerHTML="";var displayScores=allScores.slice(-10).reverse();for(var i=0;i<displayScores.length;i++){var s=displayScores[i];var div=document.createElement("div");div.className="flex justify-between items-center p-4 mb-2 rounded-xl "+(i===0?"bg-yellow-200":"bg-white");div.innerHTML='<span class="text-2xl font-semibold">#'+(allScores.length-i)+'</span><span class="text-2xl">'+s.email+'</span><span class="text-2xl font-bold text-purple-600">'+s.score+"/"+s.total+"</span>";leaderboard.appendChild(div)}}resetInactivityTimer()}
+function resetQuiz(){document.getElementById("resultsScreen").classList.add("hidden");document.getElementById("attractScreen").classList.remove("hidden");document.getElementById("emailInput").value="";clearTimeout(inactivityTimer)}
+function resetInactivityTimer(){clearTimeout(inactivityTimer);inactivityTimer=setTimeout(function(){resetQuiz()},30000)}
+document.addEventListener("click",resetInactivityTimer);
+document.addEventListener("touchstart",resetInactivityTimer);
+</script>
+</body>
+</html>
